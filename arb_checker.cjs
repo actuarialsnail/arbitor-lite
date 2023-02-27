@@ -34,13 +34,13 @@ const profit_check = (price_obj) => {
         size1 = Math.min(kraken.ask_size, okex.bid_size);
         profit1 = (size1 * kraken.ask_price * (1 - fee1) / okex.bid_price * (1 - fee2)) / size1;
         // console.log(profit1);
-        profit1 > 1 ? console.log(`buy kraken ${size1} at ask price ${kraken.ask_price}, sell ${size1} okex at bid price ${okex.bid_price}`) : console.log(`${profit1}`);
+        // profit1 > 1 ? console.log(`buy kraken ${size1} at ask price ${kraken.ask_price}, sell ${size1} okex at bid price ${okex.bid_price}`) : console.log(`${profit1}`);
 
         // buy okex at ask, sell kraken at bid
         size2 = Math.min(okex.ask_size, kraken.bid_size);
         profit2 = (size2 * okex.ask_price * (1 - fee1) / kraken.bid_price * (1 - fee2)) / size2;
         // console.log(profit2);
-        profit2 > 1 ? console.log(`buy okex ${size2} at ask price ${okex.ask_price}, sell ${size2} kraken at bid price ${kraken.bid_price}`) : console.log(`${profit2}`);
+        // profit2 > 1 ? console.log(`buy okex ${size2} at ask price ${okex.ask_price}, sell ${size2} kraken at bid price ${kraken.bid_price}`) : console.log(`${profit2}`);
 
         if (profit1 > 1 || profit2 > 1) {
             const tmstmp_currentSys = new Date();
