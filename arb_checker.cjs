@@ -28,7 +28,7 @@ const profit_check = (price_obj) => {
 
     const time_delta = Math.abs(kraken.time - okex.time);
 
-    if (time_delta < 1000) {
+    if (time_delta < 5000) {
 
         // buy kraken at ask, sell okex at bid
         size1 = Math.min(kraken.ask_size, okex.bid_size);
@@ -45,7 +45,7 @@ const profit_check = (price_obj) => {
         if (profit1 > 1 || profit2 > 1) {
             const tmstmp_currentSys = new Date();
             const tmstmp_currentSysDate = tmstmp_currentSys.toJSON().slice(0, 10);
-            fs.appendFile('./log/opportunity-' + tmstmp_currentSysDate + '.json', JSON.stringify(price_obj) + '\n', (err) => {
+            fs.appendFile('./log/opportunity-' + tmstmp_currentSysDate + '.json', JSON.stringify({ price_obj, profit1, profit2, time_delta }) + '\n', (err) => {
                 if (err) { console.log('Error occured when writing to opportunity log', { tmstmp_currentSys, err }); }
             });
         }
