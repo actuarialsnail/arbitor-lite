@@ -51,7 +51,7 @@ const profit_check = (price_obj) => {
         }
 
     } else {
-        console.log(`price object timestamps not in sync with a difference of ${time_delta}ms`);
+        // console.log(`price object timestamps not in sync with a difference of ${time_delta}ms`);
     }
     // console.timeEnd('arb checking');
 }
