@@ -18,6 +18,14 @@ class okex_ws_class {
                 {
                     "channel": "bbo-tbt",
                     "instId": "BTC-USDT"
+                },
+                {
+                    "channel": "bbo-tbt",
+                    "instId": "BTC-USDC"
+                },
+                {
+                    "channel": "bbo-tbt",
+                    "instId": "USDC-USDT"
                 }
             ]
         }
@@ -42,12 +50,20 @@ class okex_ws_class {
 
             if (msg.data) {
                 try {
-                    this.price_obj = {
-                        pair: "BTC-USDT",
-                        bid_price: Number(msg.data[0].bids[0][0]),
-                        bid_size: Number(msg.data[0].bids[0][1]),
-                        ask_price: Number(msg.data[0].asks[0][0]),
-                        ask_size: Number(msg.data[0].asks[0][1]),
+                    let s1 = msg.arg.instId.split('-')[0]
+                    let s2 = msg.arg.instId.split('-')[1]
+                    this.price_obj[s1 + '-' + s2] = {
+                        price: Number(msg.data[0].bids[0][0]),
+                        size: Number(msg.data[0].bids[0][1]),
+                        // ask_price: Number(msg.data[0].asks[0][0]),
+                        // ask_size: Number(msg.data[0].asks[0][1]),
+                        time: Number(msg.data[0].ts)
+                    }
+                    this.price_obj[s2 + '-' + s1] = {
+                        // bid_price: Number(msg.data[0].bids[0][0]),
+                        // bid_size: Number(msg.data[0].bids[0][1]),
+                        price: 1 / Number(msg.data[0].asks[0][0]),
+                        size: Number(msg.data[0].asks[0][0]) * Number(msg.data[0].asks[0][1]),
                         time: Number(msg.data[0].ts)
                     }
                     // console.log(this.price_obj);

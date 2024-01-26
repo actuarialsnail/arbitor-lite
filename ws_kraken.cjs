@@ -12,7 +12,7 @@ class kraken_ws_class {
 
         const kraken_request = {
             "event": "subscribe",
-            "pair": ["XBT/USDT"],
+            "pair": ["XBT/USDT", "XBT/USDC", "USDC/USDT"],
             "subscription": {
                 "name": "spread",
             }
@@ -35,14 +35,22 @@ class kraken_ws_class {
             // console.time('msg');
             let msg = JSON.parse(msg_text);
             // console.log(msg);
-            if (msg[0] === 2261) {
+            if (msg[0] === 2261 || msg[0] === 2373 || msg[0] === 2341) {
                 try {
-                    this.price_obj = {
-                        pair: "BTC-USDT",
-                        bid_price: Number(msg[1][0]),
-                        bid_size: Number(msg[1][3]),
-                        ask_price: Number(msg[1][1]),
-                        ask_size: Number(msg[1][4]),
+                    let s1 = msg[3].split('/')[0].replace('XBT', 'BTC')
+                    let s2 = msg[3].split('/')[1].replace('XBT', 'BTC')
+                    this.price_obj[s1 + '-' + s2] = {
+                        price: Number(msg[1][0]),
+                        size: Number(msg[1][3]),
+                        // ask_price: Number(msg[1][1]),
+                        // ask_size: Number(msg[1][4]),
+                        time: Number(msg[1][2]) * 1000 //covnert from seconds to milliseconds
+                    }
+                    this.price_obj[s2 + '-' + s1] = {
+                        // bid_price: Number(msg[1][0]),
+                        // bid_size: Number(msg[1][3],
+                        price: 1 / Number(msg[1][1]),
+                        size: Number(msg[1][1]) * Number(msg[1][4]),
                         time: Number(msg[1][2]) * 1000 //covnert from seconds to milliseconds
                     }
                     // console.log(this.price_obj);

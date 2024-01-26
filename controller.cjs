@@ -4,18 +4,26 @@ const numCPUs = require('os').cpus().length;
 
 const kraken_ws_class = require('./ws_kraken.cjs');
 const okex_ws_class = require('./ws_okex.cjs');
-const profit_check = require('./arb_checker.cjs');
+const binance_ws_class = require('./ws_binance.cjs');
+const profit_check = require('./profit_check.cjs');
+const { routes } = require('./routes.cjs')
+const config = require('./config/config.cjs');
 
 const kraken_stream = new kraken_ws_class();
 const okex_stream = new okex_ws_class();
+const binance_stream = new binance_ws_class();
 
 const workerMap = {
     'ws_kraken': 1,
     'ws_okex': 2,
-    'arb_checker': 3,
+    'ws_binance': 3,
+    'arb_checker': 4,
 }
 
-let price_obj = { kraken: {}, okex: {} }
+// console.log(numCPUs,' number of CPUs')
+// console.log(routes)
+
+let price_obj = { Kraken: {}, OKX: {}, Binance: {} }
 
 if (cluster.isMaster) {
     console.log(`Primary ${process.pid} is running`);
@@ -30,19 +38,22 @@ if (cluster.isMaster) {
 
             switch (msg.type) {
                 case 'kraken_stream':
-                    price_obj.kraken = msg.res.price_obj;
+                    price_obj.Kraken = msg.res.price_obj;
                     break;
                 case 'okex_stream':
-                    price_obj.okex = msg.res.price_obj;
+                    price_obj.OKX = msg.res.price_obj;
+                    break;
+                case 'binance_stream':
+                    price_obj.Binance = msg.res.price_obj;
                     break;
                 default:
                     break;
             }
         })
 
-        if (worker.id === 3) {
+        if (worker.id === 4) {
             setInterval(() => {
-                worker.send(price_obj)
+                worker.send({ price_obj, routes })
             }, 100);
         }
     }
@@ -55,7 +66,7 @@ if (cluster.isMaster) {
     console.log(`Worker ${process.pid} started`);
 
     process.on('message', msg => {
-        // console.log(`${cluster.worker.id} received ${msg}`);
+        // console.log(`${cluster.worker.id} received ${JSON.stringify(msg)}`);
         profit_check(msg);
     })
 
@@ -78,6 +89,15 @@ if (cluster.isMaster) {
                 process.send({
                     type: 'okex_stream',
                     res: { price_obj: okex_stream.price_obj },
+                })
+            }, ws_poll_interval)
+            break;
+        case 3:
+            binance_stream.stream();
+            setInterval(() => {
+                process.send({
+                    type: 'binance_stream',
+                    res: { price_obj: binance_stream.price_obj },
                 })
             }, ws_poll_interval)
             break;
